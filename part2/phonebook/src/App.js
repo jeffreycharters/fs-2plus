@@ -4,6 +4,8 @@ import Details from './components/Details'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 
+import phonebookService from './services/persons'
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
@@ -27,7 +29,10 @@ const App = () => {
       number: newNumber
     }
 
-    axios.post('http://localhost:3001/persons', personObject)
+    phonebookService.create(personObject)
+      .then(newPerson => {
+        setPersons(persons.concat(newPerson))
+      })
 
 
     const namePresent = persons.filter(person => {
