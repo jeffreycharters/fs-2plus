@@ -27,6 +27,9 @@ const App = () => {
       number: newNumber
     }
 
+    axios.post('http://localhost:3001/persons', personObject)
+
+
     const namePresent = persons.filter(person => {
       return person.name === personObject.name
     })
