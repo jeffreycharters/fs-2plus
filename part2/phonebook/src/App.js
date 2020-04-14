@@ -29,26 +29,35 @@ const App = () => {
       number: newNumber
     }
 
-    phonebookService.create(personObject)
-      .then(newPerson => {
-        setPersons(persons.concat(newPerson))
-      })
+    const personExists = persons.filter(person => person.name === newName).length > 0
 
+    if (personExists) {
+      const person = persons.filter(person => person.name === newName)[0]
 
-    const namePresent = persons.filter(person => {
-      return person.name === personObject.name
-    })
+      const confirm = window.confirm(`Change ${person.name} number to ${newNumber}?`)
 
-    if (namePresent.length > 0) {
-      return (
-        alert(`${personObject.name} is already in the phonebook!`)
-      )
-    } else {
-      setPersons(persons.concat(personObject))
-      setShowPersons(persons.concat(personObject))
-      setNewName('')
-      setNewNumber('')
+      if (!confirm) { return null }
+
+      phonebookService.update(person, newNumber)
+        .then(updatedPerson => {
+          setPersons(persons.map(person =>
+            person.name === updatedPerson.name ? updatedPerson : person))
+          setShowPersons(persons.map(person =>
+            person.name === updatedPerson.name ? updatedPerson : person))
+        })
     }
+    else {
+
+      phonebookService.create(personObject)
+        .then(newPerson => {
+          setPersons(persons.concat(newPerson))
+          setShowPersons(persons.concat(newPerson))
+        })
+    }
+
+    setNewName('')
+    setNewNumber('')
+
   }
 
   const handleNameChange = (event) => {
@@ -70,6 +79,18 @@ const App = () => {
     }
   }
 
+  const deleteHandler = (id) => {
+    const personToDelete = persons.filter(person => person.id === id)
+    const confirmDelete = window.confirm(`Delete ${personToDelete[0].name}?`)
+    if (confirmDelete) {
+      phonebookService.remove(id)
+        .then(response => {
+          setPersons(persons.filter(person => person.id !== id))
+          setShowPersons(persons.filter(person => person.id !== id))
+        })
+    }
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -86,7 +107,7 @@ const App = () => {
 
       <h2>Numbers </h2>
       {showPersons.map(person =>
-        <Details key={person.name} person={person} />
+        <Details key={person.name} person={person} deleteHandler={deleteHandler} />
       )}
     </div>
   )
