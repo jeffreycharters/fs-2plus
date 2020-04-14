@@ -21,7 +21,7 @@
     {
       "content": "JOey joe joe?!",
       "date": "2020-04-13T22:28:16.735Z",
-      "important": false,
+      "important": true,
       "id": 4
     },
     {
@@ -47,12 +47,6 @@
       "date": "2020-04-13T23:03:19.366Z",
       "important": true,
       "id": 8
-    },
-    {
-      "content": "a new note!",
-      "date": "2020-04-13T23:04:46.464Z",
-      "important": false,
-      "id": 9
     }
   ]
 }

@@ -10,14 +10,16 @@ const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [showPersons, setShowPersons] = useState(persons)
+  const [showAll, setShowAll] = useState(true)
+  const [filter, setFilter] = useState('')
+
+  const personsToShow = showAll ? persons : persons.filter(person => person.name.toLowerCase().includes(filter))
 
   useEffect(() => {
     axios
       .get('http://localhost:3001/persons')
       .then(response => {
         setPersons(response.data)
-        setShowPersons(response.data)
       })
   }, [])
 
@@ -42,8 +44,6 @@ const App = () => {
         .then(updatedPerson => {
           setPersons(persons.map(person =>
             person.name === updatedPerson.name ? updatedPerson : person))
-          setShowPersons(persons.map(person =>
-            person.name === updatedPerson.name ? updatedPerson : person))
         })
     }
     else {
@@ -51,7 +51,6 @@ const App = () => {
       phonebookService.create(personObject)
         .then(newPerson => {
           setPersons(persons.concat(newPerson))
-          setShowPersons(persons.concat(newPerson))
         })
     }
 
@@ -71,11 +70,12 @@ const App = () => {
   const handleFilterChange = (event) => {
     const filterText = event.target.value.toLowerCase()
     if (filterText.length > 0) {
-      const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filterText))
-      setShowPersons(filteredPersons)
+      console.log(filterText)
+      setFilter(filterText)
+      setShowAll(false)
     }
     else {
-      setShowPersons(persons)
+      setShowAll(true)
     }
   }
 
@@ -86,7 +86,6 @@ const App = () => {
       phonebookService.remove(id)
         .then(response => {
           setPersons(persons.filter(person => person.id !== id))
-          setShowPersons(persons.filter(person => person.id !== id))
         })
     }
   }
@@ -106,7 +105,7 @@ const App = () => {
       />
 
       <h2>Numbers </h2>
-      {showPersons.map(person =>
+      {personsToShow.map(person =>
         <Details key={person.name} person={person} deleteHandler={deleteHandler} />
       )}
     </div>
