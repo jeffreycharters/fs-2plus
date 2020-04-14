@@ -3,6 +3,7 @@ import axios from 'axios'
 import Details from './components/Details'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
+import './index.css'
 
 import phonebookService from './services/persons'
 
@@ -12,8 +13,21 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [showAll, setShowAll] = useState(true)
   const [filter, setFilter] = useState('')
+  const [message, setMessage] = useState('')
 
   const personsToShow = showAll ? persons : persons.filter(person => person.name.toLowerCase().includes(filter))
+
+  const Notification = ({ message }) => {
+    if (message === '') {
+      return null
+    }
+
+    return (
+      <div className="message">
+        {message}
+      </div>
+    )
+  }
 
   useEffect(() => {
     axios
@@ -31,10 +45,10 @@ const App = () => {
       number: newNumber
     }
 
-    const personExists = persons.filter(person => person.name === newName).length > 0
+    const personExists = persons.find(person => person.name === newName)
 
     if (personExists) {
-      const person = persons.filter(person => person.name === newName)[0]
+      const person = persons.find(person => person.name === newName)
 
       const confirm = window.confirm(`Change ${person.name} number to ${newNumber}?`)
 
@@ -45,6 +59,8 @@ const App = () => {
           setPersons(persons.map(person =>
             person.name === updatedPerson.name ? updatedPerson : person))
         })
+
+      setMessage(`${person.name} number changed to ${newNumber}`)
     }
     else {
 
@@ -80,12 +96,18 @@ const App = () => {
   }
 
   const deleteHandler = (id) => {
-    const personToDelete = persons.filter(person => person.id === id)
-    const confirmDelete = window.confirm(`Delete ${personToDelete[0].name}?`)
+    const personToDelete = persons.find(person => person.id === id)
+    const confirmDelete = window.confirm(`Delete ${personToDelete.name}?`)
     if (confirmDelete) {
       phonebookService.remove(id)
         .then(response => {
           setPersons(persons.filter(person => person.id !== id))
+          setMessage(`${personToDelete.name} deleted from phonebook.`)
+        })
+        .catch(error => {
+          setMessage(
+            `${personToDelete.name} does not exist in phone book`
+          )
         })
     }
   }
@@ -93,6 +115,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification message={message} />
 
       <Filter handleFilterChange={handleFilterChange} />
 
